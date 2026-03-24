@@ -43,14 +43,16 @@ export default function RegisterScreen({ navigation }) {
         secureTextEntry
       />
 
-      <TouchableOpacity style={styles.boton}>
-        <Text style={styles.botonTexto}>Crear cuenta</Text>
-      </TouchableOpacity>
+      <TouchableOpacity 
+  style={styles.boton}
+  onPress={() => navigation.navigate('Dashboard')}>
+  <Text style={styles.botonTexto}>Crear cuenta</Text>
+</TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.linkTexto}>¿Ya tienes cuenta? Inicia sesión</Text>
-      </TouchableOpacity>
-    </View>
+<TouchableOpacity onPress={() => navigation.navigate('Login')}>
+  <Text style={styles.linkTexto}>¿Ya tienes cuenta? Inicia sesión</Text>
+</TouchableOpacity>
+</View>
   );
 }
 
