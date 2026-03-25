@@ -1,66 +1,81 @@
-import React from 'react';
-import { StyleSheet, ScrollView, Text } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity } from 'react-native';
 
-// Importamos todos nuestros componentes reutilizables
-import MyButton from '../components/MyButton'; 
+// Componentes
+import VideoBackground from '../components/VideoBackground';
+import AirQualityWheel from '../components/AirQualityWheel';
 import SensorCard from '../components/SensorCard';
-import AirQualityWheel from '../components/AirQualityWheel'; // <-- El nuevo
+import MyButton from '../components/MyButton';
 
 export default function DashboardScreen({ navigation }) {
-  // Imagina que este valor viene de tu base de datos o sensor
-  const estadoActual = "BUENO"; 
+  const [estado, setEstado] = useState('BUENO');
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Monitoreo en Vivo 🌫️</Text>
+    <View style={{ flex: 1 }}>
+      {/* 1. FONDO DE VIDEO */}
+      <VideoBackground status={estado} />
 
-      {/* 1. La rueda inteligente */}
-      <AirQualityWheel status={estadoActual} />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Monitoreo en Vivo 🌫️</Text>
+        
+        {/* Al picarle a la rueda cambiamos el video para probar */}
+        <TouchableOpacity 
+          activeOpacity={0.8}
+          onPress={() => setEstado(estado === 'BUENO' ? 'MALO' : 'BUENO')}
+        >
+          <AirQualityWheel status={estado} />
+        </TouchableOpacity>
 
-      <Text style={styles.subtitle}>Lectura de Sensores</Text>
+        <Text style={styles.subtitle}>Lectura de Sensores</Text>
+        
+        <SensorCard 
+          title="MQ-135 (Calidad)" 
+          value={estado === 'BUENO' ? "400" : "1200"} 
+          unit="PPM" 
+          onPress={() => navigation.navigate('Detail', { sensor: 'MQ-135', valor: 400 })} 
+        />
+        
+        <SensorCard 
+          title="Sensor CO2" 
+          value={estado === 'BUENO' ? "600" : "2500"} 
+          unit="PPM" 
+          onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: 600 })} 
+        />
 
-      {/* 2. Tus tarjetas de sensores */}
-      <SensorCard 
-        title="MQ-135 (Calidad del aire)" 
-        value="400" unit="PPM"
-        onPress={() => navigation.navigate('Detail', { sensor: 'MQ-135', valor: 400 })}
-      />
-
-      <SensorCard 
-        title="Sensor CO2" 
-        value="600" unit="PPM"
-        onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: 600 })}
-      />
-
-      {/* 3. Tu botón de historial */}
-      <MyButton 
-        title="Ver historial completo"
-        color="#34495e"
-        onPress={() => navigation.navigate('History')}
-      />
-    </ScrollView>
+        <MyButton 
+          title="Ver historial completo" 
+          onPress={() => navigation.navigate('History')} 
+        />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#ecf0f1',
-    flexGrow: 1,
+  container: { 
+    alignItems: 'center', 
+    padding: 20, 
+    flexGrow: 1 
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginBottom: 25,
-    color: '#2c3e50',
+  title: { 
+    fontSize: 26, 
+    fontWeight: 'bold', 
+    color: '#fff', 
+    marginBottom: 20, 
     marginTop: 10,
+    // Sombra para que resalte sobre el video
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: {width: -1, height: 1},
+    textShadowRadius: 10 
   },
-  subtitle: {
-    fontSize: 18,
-    marginBottom: 15,
-    alignSelf: 'flex-start',
-    fontWeight: '600',
-    color: '#7f8c8d'
+  subtitle: { 
+    fontSize: 18, 
+    color: '#fff', 
+    alignSelf: 'flex-start', 
+    marginVertical: 15, 
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: {width: -1, height: 1},
+    textShadowRadius: 5
   }
 });

@@ -1,93 +1,75 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-// Importamos tus componentes reutilizables
-import CustomInput from '../components/CustomInput';
+// Importa tus componentes (Fíjate bien en los ../)
 import MyButton from '../components/MyButton';
+import CustomInput from '../components/CustomInput';
 
 export default function RegisterScreen({ navigation }) {
-  const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
+  const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmar, setConfirmar] = useState('');
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Registrarse</Text>
+    <View style={styles.container}>
+      <Text style={styles.titulo}>Registrarse</Text>
 
       <CustomInput 
-        placeholder="Nombre completo"
-        value={formData.nombre}
-        onChangeText={(val) => setFormData({...formData, nombre: val})}
+        placeholder="Nombre completo" 
+        value={nombre} 
+        onChangeText={setNombre} 
       />
 
       <CustomInput 
-        placeholder="Correo electrónico"
-        value={formData.email}
-        onChangeText={(val) => setFormData({...formData, email: val})}
-        keyboardType="email-address"/>
-
-      <CustomInput 
-        placeholder="Contraseña"
-        value={formData.password}
-        onChangeText={(val) => setFormData({...formData, password: val})}
-        secureTextEntry={true}
+        placeholder="Correo electrónico" 
+        value={email} 
+        onChangeText={setEmail} 
+        keyboardType="email-address"
       />
 
       <CustomInput 
-        placeholder="Confirmar contraseña"
-        value={formData.confirmPassword}
-        onChangeText={(val) => setFormData({...formData, confirmPassword: val})}
-        secureTextEntry={true}
+        placeholder="Contraseña" 
+        value={password} 
+        onChangeText={setPassword} 
+        secureTextEntry 
       />
 
-      <View style={styles.buttonContainer}>
-        <MyButton 
-          title="Crear cuenta" 
-          onPress={() => {
-            console.log("Datos:", formData);
-            navigation.navigate('Login');
-          }} 
-          color="#3498db" // El azul que tienes en tu diseño
-        />
-      </View>
+      <CustomInput 
+        placeholder="Confirmar contraseña" 
+        value={confirmar} 
+        onChangeText={setConfirmar} 
+        secureTextEntry 
+      />
 
-      <Text 
-        style={styles.link} 
-        onPress={() => navigation.navigate('Login')}
-      >
-        ¿Ya tienes cuenta? <Text style={styles.linkBold}>Inicia sesión</Text>
-      </Text>
-    </ScrollView>
+      <MyButton 
+        title="Crear cuenta" 
+        onPress={() => navigation.navigate('Dashboard')} 
+      />
+
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.linkTexto}>¿Ya tienes cuenta? Inicia sesión</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: 30,
-    justifyContent: 'center',
+    flex: 1,
     backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
   },
-  title: {
-    fontSize: 32,
+  titulo: {
+    fontSize: 28,
     fontWeight: 'bold',
-    textAlign: 'center',
     color: '#2c3e50',
-    marginBottom: 40,
+    marginBottom: 30,
   },
-  buttonContainer: {
-    marginTop: 20,
+  linkTexto: {
+    color: '#2980b9',
+    fontSize: 14,
   },
-  link: {
-    marginTop: 25,
-    textAlign: 'center',
-    color: '#7f8c8d',
-  },
-  linkBold: {
-    color: '#3498db',
-    fontWeight: 'bold',
-  }
 });
