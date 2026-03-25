@@ -1,99 +1,93 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+
+// Importamos tus componentes reutilizables
+import CustomInput from '../components/CustomInput';
+import MyButton from '../components/MyButton';
 
 export default function RegisterScreen({ navigation }) {
-  const [nombre, setNombre] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmar, setConfirmar] = useState('');
+  const [formData, setFormData] = useState({
+    nombre: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>Registrarse</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Registrarse</Text>
 
-      <TextInput
-        style={styles.input}
+      <CustomInput 
         placeholder="Nombre completo"
-        value={nombre}
-        onChangeText={setNombre}
+        value={formData.nombre}
+        onChangeText={(val) => setFormData({...formData, nombre: val})}
       />
 
-      <TextInput
-        style={styles.input}
+      <CustomInput 
         placeholder="Correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+        value={formData.email}
+        onChangeText={(val) => setFormData({...formData, email: val})}
+        keyboardType="email-address"/>
 
-      <TextInput
-        style={styles.input}
+      <CustomInput 
         placeholder="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
+        value={formData.password}
+        onChangeText={(val) => setFormData({...formData, password: val})}
+        secureTextEntry={true}
       />
 
-      <TextInput
-        style={styles.input}
+      <CustomInput 
         placeholder="Confirmar contraseña"
-        value={confirmar}
-        onChangeText={setConfirmar}
-        secureTextEntry
+        value={formData.confirmPassword}
+        onChangeText={(val) => setFormData({...formData, confirmPassword: val})}
+        secureTextEntry={true}
       />
 
-      <TouchableOpacity 
-  style={styles.boton}
-  onPress={() => navigation.navigate('Dashboard')}>
-  <Text style={styles.botonTexto}>Crear cuenta</Text>
-</TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <MyButton 
+          title="Crear cuenta" 
+          onPress={() => {
+            console.log("Datos:", formData);
+            navigation.navigate('Login');
+          }} 
+          color="#3498db" // El azul que tienes en tu diseño
+        />
+      </View>
 
-<TouchableOpacity onPress={() => navigation.navigate('Login')}>
-  <Text style={styles.linkTexto}>¿Ya tienes cuenta? Inicia sesión</Text>
-</TouchableOpacity>
-</View>
+      <Text 
+        style={styles.link} 
+        onPress={() => navigation.navigate('Login')}
+      >
+        ¿Ya tienes cuenta? <Text style={styles.linkBold}>Inicia sesión</Text>
+      </Text>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    flexGrow: 1,
+    padding: 30,
     justifyContent: 'center',
-    padding: 20,
+    backgroundColor: '#fff',
   },
-  titulo: {
-    fontSize: 28,
+  title: {
+    fontSize: 32,
     fontWeight: 'bold',
+    textAlign: 'center',
     color: '#2c3e50',
-    marginBottom: 30,
+    marginBottom: 40,
   },
-  input: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#bdc3c7',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
-    fontSize: 16,
+  buttonContainer: {
+    marginTop: 20,
   },
-  boton: {
-    backgroundColor: '#2980b9',
-    padding: 15,
-    borderRadius: 10,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 15,
+  link: {
+    marginTop: 25,
+    textAlign: 'center',
+    color: '#7f8c8d',
   },
-  botonTexto: {
-    color: '#fff',
-    fontSize: 16,
+  linkBold: {
+    color: '#3498db',
     fontWeight: 'bold',
-  },
-  linkTexto: {
-    color: '#2980b9',
-    fontSize: 14,
-  },
+  }
 });
