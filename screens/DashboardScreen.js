@@ -1,81 +1,108 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Text, TouchableOpacity } from 'react-native';
-
-// Componentes
-import VideoBackground from '../components/VideoBackground';
-import AirQualityWheel from '../components/AirQualityWheel';
-import SensorCard from '../components/SensorCard';
-import MyButton from '../components/MyButton';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function DashboardScreen({ navigation }) {
-  const [estado, setEstado] = useState('BUENO');
-
   return (
-    <View style={{ flex: 1 }}>
-      {/* 1. FONDO DE VIDEO */}
-      <VideoBackground status={estado} />
+    <View style={styles.container}>
 
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Monitoreo en Vivo 🌫️</Text>
-        
-        {/* Al picarle a la rueda cambiamos el video para probar */}
-        <TouchableOpacity 
-          activeOpacity={0.8}
-          onPress={() => setEstado(estado === 'BUENO' ? 'MALO' : 'BUENO')}
-        >
-          <AirQualityWheel status={estado} />
-        </TouchableOpacity>
+      <Text style={styles.title}>Sistema de Monitoreo</Text>
 
-        <Text style={styles.subtitle}>Lectura de Sensores</Text>
-        
-        <SensorCard 
-          title="MQ-135 (Calidad)" 
-          value={estado === 'BUENO' ? "400" : "1200"} 
-          unit="PPM" 
-          onPress={() => navigation.navigate('Detail', { sensor: 'MQ-135', valor: 400 })} 
-        />
-        
-        <SensorCard 
-          title="Sensor CO2" 
-          value={estado === 'BUENO' ? "600" : "2500"} 
-          unit="PPM" 
-          onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: 600 })} 
-        />
+      {/* RUEDA CENTRAL */}
+      <View style={styles.circle}>
+        <Text style={styles.circleText}>AIRE</Text>
+        <Text style={styles.estado}>BUENO</Text>
+      </View>
 
-        <MyButton 
-          title="Ver historial completo" 
-          onPress={() => navigation.navigate('History')} 
-        />
-      </ScrollView>
+      {/* SENSORES */}
+      <Text style={styles.subtitle}>Sensores utilizados</Text>
+
+      <TouchableOpacity 
+        style={styles.card}
+        onPress={() => navigation.navigate('Detail', { sensor: 'ESP32', valor: 400 })}
+      >
+        <Text style={styles.sensor}>MQ-135 (Calidad del aire)</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.card}
+        onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: 600 })}
+      >
+        <Text style={styles.sensor}>Sensor CO2</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.card}
+        onPress={() => navigation.navigate('Detail', { sensor: 'Temperatura', valor: 28 })}
+      >
+        <Text style={styles.sensor}>Temperatura</Text>
+      </TouchableOpacity>
+<TouchableOpacity 
+  style={styles.historyButton}
+  onPress={() => navigation.navigate('History')}
+>
+  <Text style={styles.historyText}>Ver historial</Text>
+</TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    alignItems: 'center', 
-    padding: 20, 
-    flexGrow: 1 
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#ecf0f1'
   },
-  title: { 
-    fontSize: 26, 
-    fontWeight: 'bold', 
-    color: '#fff', 
-    marginBottom: 20, 
-    marginTop: 10,
-    // Sombra para que resalte sobre el video
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
-    textShadowRadius: 10 
-  },
-  subtitle: { 
-    fontSize: 18, 
-    color: '#fff', 
-    alignSelf: 'flex-start', 
-    marginVertical: 15, 
+  title: {
+    fontSize: 24,
     fontWeight: 'bold',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
-    textShadowRadius: 5
-  }
+    marginBottom: 20
+  },
+  circle: {
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: '#2ecc71',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 30
+  },
+  circleText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  estado: {
+    color: '#fff',
+    marginTop: 10
+  },
+  subtitle: {
+    fontSize: 18,
+    marginBottom: 10
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    width: '100%',
+    marginBottom: 10,
+    elevation: 3
+  },
+  sensor: {
+    fontWeight: 'bold'
+  },
+  
+  
+  historyButton: {
+  marginTop: 20,
+  backgroundColor: '#34495e',
+  padding: 15,
+  borderRadius: 10,
+  width: '100%',
+  alignItems: 'center'
+},
+historyText: {
+  color: '#fff'
+}
+
 });
