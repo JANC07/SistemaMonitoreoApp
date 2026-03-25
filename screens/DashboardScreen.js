@@ -1,108 +1,66 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { StyleSheet, ScrollView, Text } from 'react-native';
+
+// Importamos todos nuestros componentes reutilizables
+import MyButton from '../components/MyButton'; 
+import SensorCard from '../components/SensorCard';
+import AirQualityWheel from '../components/AirQualityWheel'; // <-- El nuevo
 
 export default function DashboardScreen({ navigation }) {
+  // Imagina que este valor viene de tu base de datos o sensor
+  const estadoActual = "BUENO"; 
+
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Monitoreo en Vivo 🌫️</Text>
 
-      <Text style={styles.title}>Sistema de Monitoreo 🌫️</Text>
+      {/* 1. La rueda inteligente */}
+      <AirQualityWheel status={estadoActual} />
 
-      {/* RUEDA CENTRAL */}
-      <View style={styles.circle}>
-        <Text style={styles.circleText}>AIRE</Text>
-        <Text style={styles.estado}>BUENO</Text>
-      </View>
+      <Text style={styles.subtitle}>Lectura de Sensores</Text>
 
-      {/* SENSORES */}
-      <Text style={styles.subtitle}>Sensores utilizados</Text>
+      {/* 2. Tus tarjetas de sensores */}
+      <SensorCard 
+        title="MQ-135 (Calidad del aire)" 
+        value="400" unit="PPM"
+        onPress={() => navigation.navigate('Detail', { sensor: 'MQ-135', valor: 400 })}
+      />
 
-      <TouchableOpacity 
-        style={styles.card}
-        onPress={() => navigation.navigate('Detail', { sensor: 'ESP32', valor: 400 })}
-      >
-        <Text style={styles.sensor}>MQ-135 (Calidad del aire)</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.card}
+      <SensorCard 
+        title="Sensor CO2" 
+        value="600" unit="PPM"
         onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: 600 })}
-      >
-        <Text style={styles.sensor}>Sensor CO2</Text>
-      </TouchableOpacity>
+      />
 
-      <TouchableOpacity 
-        style={styles.card}
-        onPress={() => navigation.navigate('Detail', { sensor: 'Temperatura', valor: 28 })}
-      >
-        <Text style={styles.sensor}>Temperatura</Text>
-      </TouchableOpacity>
-<TouchableOpacity 
-  style={styles.historyButton}
-  onPress={() => navigation.navigate('History')}
->
-  <Text style={styles.historyText}>Ver historial</Text>
-</TouchableOpacity>
-    </View>
+      {/* 3. Tu botón de historial */}
+      <MyButton 
+        title="Ver historial completo"
+        color="#34495e"
+        onPress={() => navigation.navigate('History')}
+      />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#ecf0f1'
+    backgroundColor: '#ecf0f1',
+    flexGrow: 1,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    marginBottom: 20
-  },
-  circle: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: '#2ecc71',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 30
-  },
-  circleText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold'
-  },
-  estado: {
-    color: '#fff',
-    marginTop: 10
+    marginBottom: 25,
+    color: '#2c3e50',
+    marginTop: 10,
   },
   subtitle: {
     fontSize: 18,
-    marginBottom: 10
-  },
-  card: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    width: '100%',
-    marginBottom: 10,
-    elevation: 3
-  },
-  sensor: {
-    fontWeight: 'bold'
-  },
-  
-  
-  historyButton: {
-  marginTop: 20,
-  backgroundColor: '#34495e',
-  padding: 15,
-  borderRadius: 10,
-  width: '100%',
-  alignItems: 'center'
-},
-historyText: {
-  color: '#fff'
-}
-
+    marginBottom: 15,
+    alignSelf: 'flex-start',
+    fontWeight: '600',
+    color: '#7f8c8d'
+  }
 });
