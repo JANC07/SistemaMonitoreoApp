@@ -104,5 +104,4 @@ const styles = StyleSheet.create({
 historyText: {
   color: '#fff'
 }
-
 });

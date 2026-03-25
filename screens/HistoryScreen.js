@@ -7,14 +7,13 @@ export default function HistoryScreen() {
   const [data, setData] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  // SIMULACIÓN DE API (puedes cambiarlo luego por fetch real)
 useEffect(() => {
   const obtenerHistorial = async () => {
     try {
-      const res = await fetch('AQUI_TU_API'); // ← cambias esto
+      const res = await fetch('AQUI_TU_API'); // cambia a API real
       const json = await res.json();
 
-      setData(json); // ← guardas lo que venga de la API
+      setData(json); // ← guarda la API
 
     } catch (error) {
       console.error("Error al obtener historial:", error);
@@ -53,7 +52,7 @@ useEffect(() => {
       </ScrollView>
     </View>
   );
-}
+};
 
 // ESTILOS
 const styles = StyleSheet.create({
