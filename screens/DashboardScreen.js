@@ -5,7 +5,7 @@ export default function DashboardScreen({ navigation }) {
   return (
     <View style={styles.container}>
 
-      <Text style={styles.title}>Sistema de Monitoreo 🌫️</Text>
+      <Text style={styles.title}>Sistema de Monitoreo</Text>
 
       {/* RUEDA CENTRAL */}
       <View style={styles.circle}>

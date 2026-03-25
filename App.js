@@ -6,7 +6,6 @@ import SplashScreen from './screens/SplashScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 
-// TUS pantallas
 import DashboardScreen from './screens/DashboardScreen';
 import DetailScreen from './screens/DetailScreen';
 import HistoryScreen from './screens/HistoryScreen';
