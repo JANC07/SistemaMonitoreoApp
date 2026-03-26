@@ -2,7 +2,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, FlatList, StatusBar, TouchableOpacity } from 'react-native';
 
-const HistoryScreen = ({ navigation }) => {
+const HistoryScreen = ({ navigation, route }) => {
+  const { nombreSensor = 'Todos los sensores' } = route.params || {};
   // Datos de historial simulados con el nuevo diseño
   const historyData = [
     { id: '1', sensor: 'MQ-135', valor: 400, estado: 'Seguro', hora: '10:30 AM', icon: '🍃' },
@@ -60,6 +61,7 @@ const HistoryScreen = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.titleH}>Historial de Mediciones 📊</Text>
       </View>
+      <Text style={styles.filtroTexto}>Mostrando: {nombreSensor}</Text>
 
       <FlatList
         data={historyData}
@@ -91,7 +93,8 @@ const styles = StyleSheet.create({
   itemDataRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
   itemLabel: { fontSize: 13, color: '#8b949e', marginRight: 8 },
   itemValue: { fontSize: 13, color: '#fff', fontWeight: '600' },
-  itemStatus: { fontSize: 13, fontWeight: 'bold' }
+  itemStatus: { fontSize: 13, fontWeight: 'bold' },
+  filtroTexto: { color: '#8b949e', fontSize: 13, marginLeft: 15, marginBottom: 10 }
 });
 
 export default HistoryScreen;

@@ -8,7 +8,8 @@ import AirQualityWheel from '../components/AirQualityWheel'; // ¡Aquí está el
 import SensorCard from '../components/SensorCard';
 import MyButton from '../components/MyButton';
 
-export default function DashboardScreen({ navigation }) {
+export default function DashboardScreen({ navigation, route }) {
+  const { nombreUsuario = 'Usuario' } = route.params || {};
   const [estado, setEstado] = useState('BUENO');
 
   // Simulación de cambio de estado general
@@ -36,6 +37,7 @@ export default function DashboardScreen({ navigation }) {
         <Text style={[styles.title, { color: estado === 'MALO' ? '#e74c3c' : '#2ecc71' }]}>
           Monitoreo en Vivo 🌫️
         </Text>
+        <Text style={styles.bienvenida}>Bienvenido, {nombreUsuario} 👋</Text>
 
         {/* CÍRCULO ANIMADO RESTAURADO 🔥 */}
         <AirQualityWheel status={estado} />
@@ -47,7 +49,7 @@ export default function DashboardScreen({ navigation }) {
           value={currentReadings.mq135}
           unit="PPM" 
           status={estado}
-          onPress={() => navigation.navigate('Detail', { sensor: 'MQ-135', valor: currentReadings.mq135, estado })}
+          onPress={() => navigation.navigate('Detail', { sensor: 'MQ-135', valor: currentReadings.mq135, estado, unidad: 'PPM', fecha: new Date().toLocaleTimeString() })}
         />
 
         <SensorCard 
@@ -55,14 +57,17 @@ export default function DashboardScreen({ navigation }) {
           value={currentReadings.co2}
           unit="PPM" 
           status={estado}
-          onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: currentReadings.co2, estado })}
+          onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: currentReadings.co2, estado, unidad: 'PPM', fecha: new Date().toLocaleTimeString() })}
         />
 
         {/* 2. EL BOTÓN "HISTORIAL COMPLETO" AHORA HACE EL PUSH */}
         <View style={styles.buttonWrapper}>
           <MyButton 
             title="VER HISTORIAL COMPLETO" 
-            onPress={() => navigation.navigate('History')} // Navegación push
+            onPress={() => navigation.navigate('History', {
+              sensorFiltro: 'todos',
+              nombreSensor: 'Todos los sensores'
+            })}
           />
         </View>
       </ScrollView>
@@ -75,5 +80,6 @@ const styles = StyleSheet.create({
   scroll: { alignItems: 'center', padding: 20, flexGrow: 1 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, marginTop: 40, color: '#fff' },
   subtitle: { fontSize: 16, color: '#fff', alignSelf: 'flex-start', marginVertical: 15, fontWeight: 'bold', letterSpacing: 1 },
-  buttonWrapper: { marginTop: 30, width: '100%' }
+  buttonWrapper: { marginTop: 30, width: '100%' },
+  bienvenida: { color: '#8b949e', fontSize: 14, marginBottom: 10 }
 });

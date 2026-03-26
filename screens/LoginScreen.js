@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function LoginScreen({ navigation }) {
+  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Iniciar Sesión</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Nombre completo"
+        value={nombre}
+        onChangeText={setNombre}
+        autoCapitalize="words"
+      />
 
       <TextInput
         style={styles.input}
@@ -27,10 +36,13 @@ export default function LoginScreen({ navigation }) {
       />
 
       <TouchableOpacity 
-  style={styles.boton}
-  onPress={() => navigation.navigate('Dashboard')}>
-  <Text style={styles.botonTexto}>Entrar</Text>
-</TouchableOpacity>
+        style={styles.boton}
+        onPress={() => navigation.navigate('Dashboard', {
+          nombreUsuario: nombre,
+          email: email
+        })}>
+        <Text style={styles.botonTexto}>Entrar</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.linkTexto}>¿No tienes cuenta? Regístrate</Text>
