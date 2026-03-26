@@ -6,6 +6,7 @@ import MyButton from '../components/MyButton';//SE ESTAN USANDO LOS COMPONENTES 
 import CustomInput from '../components/CustomInput';//SE ESTAN USANDO LOS COMPONENTES REUTILIZABLES
 
 export default function LoginScreen({ navigation }) {
+  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -19,7 +20,6 @@ export default function LoginScreen({ navigation }) {
       </TouchableOpacity>
 
       <Text style={styles.titulo}>Iniciar Sesión</Text>
-
     <CustomInput /* Aca se emplea los componentes cargados previamente */
       placeholder="Correo electrónico"
       value={email}
@@ -33,6 +33,7 @@ export default function LoginScreen({ navigation }) {
       onChangeText={setPassword}
       secureTextEntry
     />
+
 
     <MyButton /* Aca se emplea los componentes cargados previamente */
       title="Entrar"

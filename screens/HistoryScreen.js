@@ -38,8 +38,6 @@ useEffect(() => {
   // UI PRINCIPAL
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Historial de Mediciones</Text>
-
       <ScrollView>
         {data.map((item, index) => (
           <View key={index} style={styles.card}>
