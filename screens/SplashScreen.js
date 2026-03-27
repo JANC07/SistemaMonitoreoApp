@@ -1,12 +1,35 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import React, { useState } from 'react';
+// IMPORTANTE: Agregamos Alert aquí arriba
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
 export default function SplashScreen({ navigation }) {
+  // ESTADOS (Nuestra memoria)
+  const [toques, setToques] = useState(0); // Para la Idea 3
+  const [botonPresionado, setBotonPresionado] = useState(false); // Para la Idea 1
+
+  // Función para la Idea 3 (Contador de toques)
+  const manejarToqueMagico = () => {
+    const nuevosToques = toques + 1;
+    setToques(nuevosToques);
+    
+    if (nuevosToques === 5) {
+      Alert.alert("¡Felicidades!", "Has descubierto el contador mágico del sistema. 🚀");
+      setToques(0); // Reiniciamos para que lo puedan volver a hacer
+    }
+  };
+
   return (
     <View style={styles.container}>
 
-      <View style={styles.iconContainer}>
+      {/* IDEA 2: Easter Egg con onLongPress */}
+      {/* Cambiamos View por TouchableOpacity para que pueda recibir toques */}
+      <TouchableOpacity 
+        style={styles.iconContainer}
+        activeOpacity={0.7} // Hace que la nube parpadee un poco al tocarla
+        onLongPress={() => Alert.alert('¡Secreto encontrado!', 'Modo Desarrollador Activado 🛠️')}
+        delayLongPress={2000} // Espera 2 segundos de presión para activarse
+      >
         <Svg width="100" height="80" viewBox="0 0 100 80">
           <Path
             d="M75 55 Q85 55 85 45 Q85 35 75 35 Q74 25 65 22 Q55 18 48 28 Q40 25 35 32 Q25 32 25 42 Q25 52 35 52 Z"
@@ -18,21 +41,36 @@ export default function SplashScreen({ navigation }) {
             opacity="0.6"
           />
         </Svg>
-      </View>
+      </TouchableOpacity>
 
-      <Text style={styles.titulo}>Sistema de Monitoreo</Text>
+      {/* IDEA 3: Envuelto en TouchableOpacity para contar toques */}
+      <TouchableOpacity onPress={manejarToqueMagico} activeOpacity={1}>
+        <Text style={styles.titulo}>Sistema de Monitoreo</Text>
+      </TouchableOpacity>
+      
       <Text style={styles.subtitulo}>Calidad del Aire</Text>
       <Text style={styles.descripcion}>Monitoreo en tiempo real</Text>
 
+      {/* IDEA 1: Eventos de presión en el botón */}
       <TouchableOpacity
-        style={styles.boton}
-        onPress={() => navigation.navigate('Login')}>
+        // Aquí combinamos tu estilo normal con uno condicional si está presionado
+        style={[
+          styles.boton, 
+          botonPresionado && { backgroundColor: '#0C447C', transform: [{ scale: 0.98 }] } 
+        ]}
+        onPressIn={() => setBotonPresionado(true)}   // Dedo puesto
+        onPressOut={() => setBotonPresionado(false)} // Dedo quitado
+        onPress={() => navigation.navigate('Login')}
+        activeOpacity={0.9}
+      >
         <Text style={styles.botonTexto}>Iniciar Sesión</Text>
       </TouchableOpacity>
 
+      {/* Este lo dejamos igual para que notes la diferencia al presionar uno y otro */}
       <TouchableOpacity
         style={styles.botonOutline}
-        onPress={() => navigation.navigate('Register')}>
+        onPress={() => navigation.navigate('Register')}
+      >
         <Text style={styles.botonOutlineTexto}>Registrarse</Text>
       </TouchableOpacity>
 
@@ -40,6 +78,7 @@ export default function SplashScreen({ navigation }) {
   );
 }
 
+// Tus estilos se quedan exactamente igual, ¡son perfectos!
 const styles = StyleSheet.create({
   container: {
     flex: 1,

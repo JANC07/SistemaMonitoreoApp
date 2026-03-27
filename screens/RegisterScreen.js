@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; 
 
 // Importa tus componentes (Fíjate bien en los ../)
 import MyButton from '../components/MyButton';
@@ -13,6 +14,13 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity 
+        style={styles.botonRegreso} 
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={28} color="#2c3e50" />
+      </TouchableOpacity>
+
       <Text style={styles.titulo}>Registrarse</Text>
 
       <CustomInput 
@@ -47,6 +55,7 @@ export default function RegisterScreen({ navigation }) {
         onPress={() => navigation.navigate('Dashboard')} 
       />
 
+      {/* Este enlace debe llevar a Login */}
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
         <Text style={styles.linkTexto}>¿Ya tienes cuenta? Inicia sesión</Text>
       </TouchableOpacity>
@@ -61,6 +70,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+  },
+  botonRegreso: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    padding: 10,
+    zIndex: 1,
   },
   titulo: {
     fontSize: 28,

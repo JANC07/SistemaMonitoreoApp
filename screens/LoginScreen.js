@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; 
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -7,6 +8,13 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity 
+        style={styles.botonRegreso} 
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={28} color="#2c3e50" />
+      </TouchableOpacity>
+
       <Text style={styles.titulo}>Iniciar Sesión</Text>
 
       <TextInput
@@ -32,6 +40,7 @@ export default function LoginScreen({ navigation }) {
   <Text style={styles.botonTexto}>Entrar</Text>
 </TouchableOpacity>
 
+      {/* Este enlace debe llevar a Register */}
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.linkTexto}>¿No tienes cuenta? Regístrate</Text>
       </TouchableOpacity>
@@ -46,6 +55,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+  },
+  botonRegreso: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    padding: 10,
+    zIndex: 1,
   },
   titulo: {
     fontSize: 28,
