@@ -34,9 +34,11 @@ export default function LoginScreen({ navigation }) {
         secureTextEntry
       />
 
-      <TouchableOpacity style={styles.boton}>
-        <Text style={styles.botonTexto}>Entrar</Text>
-      </TouchableOpacity>
+      <TouchableOpacity 
+  style={styles.boton}
+  onPress={() => navigation.navigate('Dashboard')}>
+  <Text style={styles.botonTexto}>Entrar</Text>
+</TouchableOpacity>
 
       {/* Este enlace debe llevar a Register */}
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
