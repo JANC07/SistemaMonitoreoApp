@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 import { Ionicons } from '@expo/vector-icons'; 
 
 export default function LoginScreen({ navigation }) {
+  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -16,6 +17,14 @@ export default function LoginScreen({ navigation }) {
       </TouchableOpacity>
 
       <Text style={styles.titulo}>Iniciar Sesión</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Nombre completo"
+        value={nombre}
+        onChangeText={setNombre}
+        autoCapitalize="words"
+      />
 
       <TextInput
         style={styles.input}
@@ -35,10 +44,13 @@ export default function LoginScreen({ navigation }) {
       />
 
       <TouchableOpacity 
-  style={styles.boton}
-  onPress={() => navigation.navigate('Dashboard')}>
-  <Text style={styles.botonTexto}>Entrar</Text>
-</TouchableOpacity>
+        style={styles.boton}
+        onPress={() => navigation.navigate('Dashboard', {
+          nombreUsuario: nombre,
+          email: email
+        })}>
+        <Text style={styles.botonTexto}>Entrar</Text>
+      </TouchableOpacity>
 
       {/* Este enlace debe llevar a Register */}
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
