@@ -47,7 +47,6 @@ export default function DetailScreen({ route }) {
     if (valor < 1000) return '#f1c40f'; // Amarillo
     return '#e74c3c'; // Rojo
   };
-
   const getEstado = (valor) => {
     if (valor < 500) return 'Seguro';
     if (valor < 1000) return 'Precaución';
