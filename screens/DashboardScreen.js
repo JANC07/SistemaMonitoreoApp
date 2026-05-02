@@ -18,21 +18,21 @@ export default function DashboardScreen({ navigation }) {
 
       <TouchableOpacity 
         style={styles.card}
-        onPress={() => navigation.navigate('Detail', { sensor: 'ESP32', valor: 400 })}
+        onPress={() => navigation.navigate('Detail', { sensor: 'Aire' })} // Envía parámetros a la pantalla Detail
       >
-        <Text style={styles.sensor}>MQ-135 (Calidad del aire)</Text>
+        <Text style={styles.sensor}>Sensor MQ-135 (Calidad del aire)</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={styles.card}
-        onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: 600 })}
+        onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: 3000})}// EJEMPLO DE ENVIO DE PARAMETROS ENTRE PANTALLAS
       >
         <Text style={styles.sensor}>Sensor CO2</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={styles.card}
-        onPress={() => navigation.navigate('Detail', { sensor: 'Temperatura', valor: 28 })}
+        onPress={() => navigation.navigate('Detail', { sensor: 'Temperatura' })}
       >
         <Text style={styles.sensor}>Temperatura</Text>
       </TouchableOpacity>

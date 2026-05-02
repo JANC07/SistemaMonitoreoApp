@@ -4,13 +4,13 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 export default function DetailScreen({ route }) {
   //TOMA LOS DATOS EN ESTE CASO
   //POSIBLEMENTE NO PONGAMOS NADA POR USAR API--TODAVIA--
-  const { sensor } = route.params; 
+  const { sensor, valor } = route.params;// EJEMPLO DE ENVIO DE PARAMETROS ENTRE PANTALLAS (RECIBE DATO)
 
   // ESTADO ANTES DE LA API
   const [datos, setDatos] = useState(null);
   const [cargando, setCargando] = useState(true);
 
-  // HOOK EFECTO PARA TRAER LA INFO CON API
+  // HOOKS PARA TRAER LA INFO CON API
   useEffect(() => {
     const obtenerDatosDeWeb = async () => {
       try {

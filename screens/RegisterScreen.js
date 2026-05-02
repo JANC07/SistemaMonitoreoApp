@@ -3,8 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 
 // Importa tus componentes
-import MyButton from '../components/MyButton';
-import CustomInput from '../components/CustomInput';
+import MyButton from '../components/MyButton';//SE ESTAN USANDO LOS COMPONENTES REUTILIZABLES
+import CustomInput from '../components/CustomInput';//SE ESTAN USANDO LOS COMPONENTES REUTILIZABLES
 
 export default function RegisterScreen({ navigation }) {
   const [nombre, setNombre] = useState('');
@@ -16,7 +16,7 @@ export default function RegisterScreen({ navigation }) {
     <View style={styles.container}>
       <TouchableOpacity 
         style={styles.botonRegreso} 
-        onPress={() => navigation.goBack()}
+        onPress={() => navigation.goBack()} // EJEMPLO DE USO DEL MANEJO DE EVENTOS Y NAVEGACION ENTRE PANTALLAS
       >
         <Ionicons name="arrow-back" size={28} color="#2c3e50" />
       </TouchableOpacity>
