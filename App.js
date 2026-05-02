@@ -36,7 +36,7 @@ export default function App() {
             <CustomHeader 
               title={route.name === 'History' ? 'Historial Completo' : route.name} 
               showBack={route.name !== 'Dashboard' && route.name !== 'Login'} 
-              onBack={() => navigation.goBack()}
+              onBack={() => navigation.goBack()} //EJEMPLO DE NAVEGACION ENTRE PANTALLAS
             />
           ),
           animation: 'fade_from_bottom', 

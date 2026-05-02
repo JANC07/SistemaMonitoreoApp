@@ -25,7 +25,7 @@ export default function DashboardScreen({ navigation }) {
 
       <TouchableOpacity 
         style={styles.card}
-        onPress={() => navigation.navigate('Detail', { sensor: 'CO2', valor: 3000})}// EJEMPLO DE ENVIO DE PARAMETROS ENTRE PANTALLAS
+        onPress={() => navigation.navigate('Detail', { sensor: 'CO2' })}// EJEMPLO DE ENVIO DE PARAMETROS ENTRE PANTALLAS
       >
         <Text style={styles.sensor}>Sensor CO2</Text>
       </TouchableOpacity>

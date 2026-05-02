@@ -1,14 +1,42 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 
 export default function HistoryScreen() {
-  const data = [
-    { sensor: 'MQ-135', valor: 400, estado: 'Seguro' },
-    { sensor: 'CO2', valor: 700, estado: 'Precaución' },
-    { sensor: 'Gas', valor: 1200, estado: 'Peligroso' },
-    { sensor: 'Temperatura', valor: 28, estado: 'Normal' },
-  ];
 
+  // ESTADOS
+  const [data, setData] = useState([]);
+  const [cargando, setCargando] = useState(true);
+
+  // SIMULACIÓN DE API (puedes cambiarlo luego por fetch real)
+useEffect(() => {
+  const obtenerHistorial = async () => {
+    try {
+      const res = await fetch('AQUI_TU_API'); // ← cambias esto
+      const json = await res.json();
+
+      setData(json); // ← guardas lo que venga de la API
+
+    } catch (error) {
+      console.error("Error al obtener historial:", error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  obtenerHistorial();
+}, []);
+
+  // LOADING
+  if (cargando) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#2ecc71" />
+        <Text>Cargando historial...</Text>
+      </View>
+    );
+  }
+
+  // UI PRINCIPAL
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Historial de Mediciones</Text>
@@ -19,6 +47,7 @@ export default function HistoryScreen() {
             <Text style={styles.sensor}>{item.sensor}</Text>
             <Text>Valor: {item.valor}</Text>
             <Text>Estado: {item.estado}</Text>
+            <Text style={styles.fecha}>{item.fecha}</Text>
           </View>
         ))}
       </ScrollView>
@@ -26,9 +55,18 @@ export default function HistoryScreen() {
   );
 }
 
+// ESTILOS
 const styles = StyleSheet.create({
-  container: { flex:1, padding:20, backgroundColor:'#ecf0f1' },
-  title: { fontSize:22, fontWeight:'bold', marginBottom:20 },
+  container: { 
+    flex:1, 
+    padding:20, 
+    backgroundColor:'#ecf0f1' 
+  },
+  title: { 
+    fontSize:22, 
+    fontWeight:'bold', 
+    marginBottom:20 
+  },
   card: {
     backgroundColor:'#fff',
     padding:15,
@@ -36,6 +74,14 @@ const styles = StyleSheet.create({
     marginBottom:10,
     elevation:3
   },
-  sensor: { fontWeight:'bold' }
-  
+  sensor: { 
+    fontWeight:'bold',
+    fontSize:16,
+    marginBottom:5
+  },
+  fecha: {
+    marginTop:5,
+    fontSize:12,
+    color:'#7f8c8d'
+  }
 });

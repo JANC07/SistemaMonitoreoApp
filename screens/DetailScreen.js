@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 export default function DetailScreen({ route }) {
   //TOMA LOS DATOS EN ESTE CASO
   //POSIBLEMENTE NO PONGAMOS NADA POR USAR API--TODAVIA--
-  const { sensor, valor } = route.params;// EJEMPLO DE ENVIO DE PARAMETROS ENTRE PANTALLAS (RECIBE DATO)
+  const { sensor } = route.params;// EJEMPLO DE ENVIO DE PARAMETROS ENTRE PANTALLAS (RECIBE DATO)
 
   // ESTADO ANTES DE LA API
   const [datos, setDatos] = useState(null);
@@ -27,8 +27,20 @@ export default function DetailScreen({ route }) {
     obtenerDatosDeWeb();
   }, []);
 
+  let valorActual = 0;
   // USAMOS FUNCION PARA MOSTRAR EL SEMAFORO SEGUN EL MONITOREO
-  const valorActual = datos?.valorCO2 || 0; // USAMOS ESTA FUNCION PARA EVITAR PROBLEMAS CUANDO NO EXISTA DATOS AUN DE LA API
+// USAMOS ESTA FUNCION PARA EVITAR PROBLEMAS CUANDO NO EXISTA DATOS AUN DE LA API
+  if (sensor === 'CO2') {
+    valorActual = datos?.valorCO2 ?? 0;
+  }
+
+  if (sensor === 'Temperatura') {
+    valorActual = datos?.temperatura ?? 0;
+  }
+
+  if (sensor === 'Aire') {
+    valorActual = datos?.calidadAire ?? 0;
+  }
 
   const getColor = (valor) => {
     if (valor < 500) return '#2ecc71'; // Verde
