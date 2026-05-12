@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
-
 import MyButton from '../components/MyButton';//SE ESTAN USANDO LOS COMPONENTES REUTILIZABLES
 import CustomInput from '../components/CustomInput';//SE ESTAN USANDO LOS COMPONENTES REUTILIZABLES
 

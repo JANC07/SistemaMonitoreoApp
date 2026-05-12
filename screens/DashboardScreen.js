@@ -1,20 +1,48 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+// Reemplaza TODO el contenido de screens/DashboardScreen.js
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView, Text, StatusBar } from 'react-native';
 
-export default function DashboardScreen({ navigation }) {
+// Componentes
+import VideoBackground from '../components/VideoBackground';
+import AirQualityWheel from '../components/AirQualityWheel'; // ¡Aquí está el círculo animado!
+import SensorCard from '../components/SensorCard';
+import MyButton from '../components/MyButton';
+
+export default function DashboardScreen({ navigation, route }) {
+  const { nombreUsuario = 'Usuario' } = route.params || {};
+  const [estado, setEstado] = useState('BUENO');
+
+  // Simulación de cambio de estado general
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEstado(prev => (prev === 'BUENO' ? 'REGULAR' : (prev === 'REGULAR' ? 'MALO' : 'BUENO')));
+    }, 10000); // Cambia cada 10 seg
+    return () => clearInterval(interval);
+  }, []);
+
+  // Valores simulados
+  const readings = {
+    'BUENO': { mq135: 400, co2: 600 },
+    'REGULAR': { mq135: 900, co2: 1200 },
+    'MALO': { mq135: 1500, co2: 2500 }
+  };
+  const currentReadings = readings[estado];
+
   return (
-    <View style={styles.container}>
+    <View style={styles.mainContainer}>
+      <StatusBar barStyle="light-content" />
+      <VideoBackground status={estado} />
 
-      <Text style={styles.title}>Sistema de Monitoreo</Text>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <Text style={[styles.title, { color: estado === 'MALO' ? '#e74c3c' : '#2ecc71' }]}>
+          Monitoreo en Vivo 🌫️
+        </Text>
+        <Text style={styles.bienvenida}>Bienvenido, {nombreUsuario} 👋</Text>
 
-      {/* RUEDA CENTRAL */}
-      <View style={styles.circle}>
-        <Text style={styles.circleText}>AIRE</Text>
-        <Text style={styles.estado}>BUENO</Text>
-      </View>
+        {/* CÍRCULO ANIMADO RESTAURADO 🔥 */}
+        <AirQualityWheel status={estado} />
 
-      {/* SENSORES */}
-      <Text style={styles.subtitle}>Sensores utilizados</Text>
+        <Text style={styles.subtitle}>Lectura de Sensores</Text>
 
       <TouchableOpacity 
         style={styles.card}
