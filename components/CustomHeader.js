@@ -10,7 +10,8 @@ const CustomHeader = ({ title, showBack = false }) => {
       <View style={styles.headerContainer}>
         <View style={styles.leftContainer}>
           {showBack && (
-            <TouchableOpacity onPress={() => navigation.goBack()}> // EJEMPLO DE USO DEL MANEJO DE EVENTOS Y NAVEGACION ENTRE PANTALLAS
+            // EJEMPLO DE USO DEL MANEJO DE EVENTOS Y NAVEGACION ENTRE PANTALLAS
+            <TouchableOpacity onPress={() => navigation.goBack()}>
               <Text style={styles.backButton}>←</Text>
             </TouchableOpacity>
           )}
