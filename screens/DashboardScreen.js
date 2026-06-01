@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { db } from '../firebase'; 
-//update a las importaciones de Firebase
-import { ref, onValue, query, limitToLast, update, set } from 'firebase/database';
 
 import { cargarUmbralesDesdeFirebase, calcularColor, calcularEstadoTexto } from '../utilidades';
+
+// URL base del backend de Yii2 (frontend web local)
+// Si usas emulador Android en la PC, '10.0.2.2' apunta al localhost de la máquina.
+// Si usas dispositivo físico, reemplaza '10.0.2.2' por la IP local de tu PC (ej: 192.168.1.X).
+const API_BASE_URL = 'http://192.168.101.22/sistema_monitoreo_yii/frontend/web/index.php?r=';
 
 export default function DashboardScreen({ navigation }) {
   
@@ -13,104 +15,95 @@ export default function DashboardScreen({ navigation }) {
   
   // Para saber si el buzzer está sonando
   const [alarmaSonando, setAlarmaSonando] = useState(false);
+  const [valorMQ135, setValorMQ135] = useState(0);
+  const [valorMQ5, setValorMQ5] = useState(0);
+  const [ultimaLectura, setUltimaLectura] = useState('');
 
   useEffect(() => {
+    // Intentamos cargar umbrales iniciales
     cargarUmbralesDesdeFirebase();
 
-    // 1. Escuchador de Lecturas
-    const ultimaLecturaRef = query(ref(db, 'lecturas_sensores/disp_001'), limitToLast(1));
-const unsubscribeLecturas = onValue(ultimaLecturaRef, (snapshot) => {
-  if (snapshot.exists()) {
-    const data = snapshot.val();
-    const val = Object.values(data)[0];
-    
-    // Extraemos ambos valores
-    const valorAire = val.mq135_valor || 0;
-    const valorGas = val.mq5_valor || 0;
+    // 1. Función para obtener la última lectura de Yii2
+    const obtenerUltimaLectura = async () => {
+      try {
+        const respuesta = await fetch(`${API_BASE_URL}sensor/ultima&id=1`);
+        const json = await respuesta.json();
+        
+        if (json.ok) {
+          // Extraemos los valores del MQ-135 y del MQ-5 real de Yii2
+          const valorAire = json.mq135 || 0;
+          const valorGas = json.mq5 || 0;
 
-    // Evaluamos ambos sensores con la utilidad dinámica
-    const estadoAire = calcularEstadoTexto(valorAire, 'MQ-135');
-    const estadoGas = calcularEstadoTexto(valorGas, 'MQ-5');
+          setValorMQ135(valorAire);
+          setValorMQ5(valorGas);
+          setUltimaLectura(json.fecha_hora || '');
 
-    // Variables finales por defecto (Todo está bien)
-    let estadoFinal = 'AMBIENTE SEGURO';
-    let colorFinal = '#2ecc71'; // Verde
+          // Evaluamos ambos sensores con la utilidad dinámica
+          const estadoAire = calcularEstadoTexto(valorAire, 'MQ-135');
+          const estadoGas = calcularEstadoTexto(valorGas, 'MQ-5');
 
-    // --- LÓGICA DE JERARQUÍA ---
-    // 1. Nivel Máximo: Si alguno está en Peligro
-    if (estadoAire === 'Peligro' && estadoGas === 'Peligro') {
-      estadoFinal = 'PELIGRO EXTREMO';
-      colorFinal = '#e74c3c'; // Rojo 
-    } 
-    else if (estadoGas === 'Peligro') {
-      estadoFinal = 'PELIGRO: GAS';
-      colorFinal = '#c0392b'; // Rojo oscuro para gas
-    } 
-    else if (estadoAire === 'Peligro') {
-      estadoFinal = 'PELIGRO: AIRE MALO';
-      colorFinal = '#c0392b'; // Rojo oscuro para aire
-    }
-    // 2. Nivel Intermedio: Si NO hay peligro, pero alguno está en Precaución
-    else if (estadoAire === 'Precaución' || estadoGas === 'Precaución') {
-      estadoFinal = 'PRECAUCIÓN';
-      colorFinal = '#f1c40f'; // Amarillo
-    }
+          // Variables finales por defecto (Todo está bien)
+          let estadoFinal = 'AMBIENTE SEGURO';
+          let colorFinal = '#2ecc71'; // Verde
 
-    // Actualizamos la UI
-    setEstadoGeneral(estadoFinal);
-    setColorFondo(colorFinal);
-  }
-});
+          // --- LÓGICA DE JERARQUÍA DE ALERTAS ---
+          if (estadoAire === 'Peligro' && estadoGas === 'Peligro') {
+            estadoFinal = 'PELIGRO EXTREMO';
+            colorFinal = '#e74c3c'; // Rojo 
+          } 
+          else if (estadoGas === 'Peligro') {
+            estadoFinal = 'PELIGRO: GAS';
+            colorFinal = '#c0392b'; // Rojo oscuro para gas
+          } 
+          else if (estadoAire === 'Peligro') {
+            estadoFinal = 'PELIGRO: AIRE MALO';
+            colorFinal = '#c0392b'; // Rojo oscuro para aire
+          }
+          else if (estadoAire === 'Precaución' || estadoGas === 'Precaución') {
+            estadoFinal = 'PRECAUCIÓN';
+            colorFinal = '#f1c40f'; // Amarillo
+          }
 
-    // 2.Estado de Actuadores (Para el Buzzer)
-    const actuadoresRef = ref(db, 'dispositivos/disp_001/estado_actuadores');
-    const unsubscribeActuadores = onValue(actuadoresRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const actuadores = snapshot.val();
-        // Si el buzzer está activo en la base de datos, actualizamos el estado de la app
-        setAlarmaSonando(actuadores.buzzer_activo);
+          // Actualizamos los estados de la interfaz
+          setEstadoGeneral(estadoFinal);
+          setColorFondo(colorFinal);
+
+          // Simulación inteligente de alarma: Si hay peligro real en los sensores, suena la alarma
+          if (estadoAire === 'Peligro' || estadoGas === 'Peligro') {
+            setAlarmaSonando(true);
+          } else {
+            setAlarmaSonando(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error al conectar con la API de Yii2:", error);
+        setEstadoGeneral('ERROR CONEXIÓN');
+        setColorFondo('#95a5a6');
       }
-    });
-
-    // Limpiamos ambos escuchadores al salir
-    return () => {
-      unsubscribeLecturas();
-      unsubscribeActuadores();
     };
+
+    // Consulta inicial inmediata
+    obtenerUltimaLectura();
+
+    // 2. Polling periódico cada 5 segundos
+    const intervalo = setInterval(obtenerUltimaLectura, 5000);
+
+    // Limpieza de recursos al salir de la pantalla
+    return () => clearInterval(intervalo);
   }, []);
 
-  const simularNuevoDispositivo = () => {//inicio CREAR
-        // Usamos 'set' para crear el nodo disp_002 en la base de datos
-        set(ref(db, 'dispositivos/disp_002'), {
-          nombre: "Sensor Cocina",
-          ubicacion: "Cocina",
-          tipo_controlador: "ESP32",
-          sensores_instalados: ["MQ5"],
-          estado_red: true,
-        }).then(() => {
-          alert("¡Éxito! Nuevo dispositivo de Cocina registrado en Firebase.");
-        }).catch((error) => console.error("Error al crear:", error));
-      };//fin CREAR
-
-  // 3. Apagar la alarma desde la App (Transacción / Update)
-  const apagarAlarma = () => {
-    // Creamos el objeto de actualización multirruta
-    const updates = {};
-    updates['dispositivos/disp_001/estado_actuadores/buzzer_activo'] = false;
-    updates['dispositivos/disp_001/estado_actuadores/color_led'] = "amarillo";
-    updates['dispositivos/disp_001/estado_actuadores/modo_operacion'] = "manual";
-
-    // Enviamos la actualización a Firebase
-    update(ref(db), updates)
-      .then(() => {
-        Alert.alert("Sistema Silenciado", "La alarma se ha apagado y el sistema pasó a modo manual.");
-      })
-      .catch((error) => {
-        console.error("Error al apagar la alarma:", error);
-        Alert.alert("Error", "No se pudo silenciar el sistema.");
-      });
-
+  const simularNuevoDispositivo = () => {
+    Alert.alert("Función deshabilitada", "La simulación de nuevos dispositivos está desactivada en el modo de API Yii2.");
   };
+
+  // 3. Apagar la alarma a nivel local (Yii2 simulado)
+  const apagarAlarma = () => {
+    setAlarmaSonando(false);
+    Alert.alert("Sistema Silenciado", "La alarma local ha sido desactivada temporalmente.");
+  };
+
+  const estadoMQ135 = calcularEstadoTexto(valorMQ135, 'MQ-135');
+  const estadoMQ5 = calcularEstadoTexto(valorMQ5, 'MQ-5');
 
   return (
     <View style={styles.container}>
@@ -139,6 +132,9 @@ const unsubscribeLecturas = onValue(ultimaLecturaRef, (snapshot) => {
       >
         <Text style={styles.sensorTitle}>Calidad del aire</Text>
         <Text style={styles.sensorCategory}>(Sensor MQ-135)</Text>
+        <Text style={styles.sensorDetail}>Valor actual: {valorMQ135}</Text>
+        <Text style={styles.sensorDetail}>Estado: {estadoMQ135}</Text>
+        <Text style={styles.sensorDetail}>Última lectura: {ultimaLectura}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
@@ -147,6 +143,9 @@ const unsubscribeLecturas = onValue(ultimaLecturaRef, (snapshot) => {
       >
         <Text style={styles.sensorTitle}>Gases combustibles</Text>
         <Text style={styles.sensorCategory}>(Sensor MQ-5)</Text>
+        <Text style={styles.sensorDetail}>Valor actual: {valorMQ5}</Text>
+        <Text style={styles.sensorDetail}>Estado: {estadoMQ5}</Text>
+        <Text style={styles.sensorDetail}>Última lectura: {ultimaLectura}</Text>
       </TouchableOpacity>
 
         {/* bloque de añadido de sensor(CREAR) */}
@@ -177,6 +176,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: '#fff', padding: 15, borderRadius: 12, width: '100%', marginBottom: 15, elevation: 3},
   sensorTitle: { fontWeight: 'bold', fontSize: 18, color: '#2c3e50' },
   sensorCategory: { color: '#7f8c8d', marginBottom: 8, fontSize: 14 },
+  sensorDetail: { fontSize: 14, color: '#34495e', marginTop: 2 },
   historyButton: { marginTop: 10, backgroundColor: '#34495e', padding: 15, borderRadius: 10, width: '100%', alignItems: 'center' },
   historyText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   
