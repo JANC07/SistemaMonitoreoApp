@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity } from 'react-native';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import { db } from '../firebase'; 
-import { ref, onValue, remove } from 'firebase/database';
 
 // Importamos la lógica centralizada
 import { calcularEstadoTexto } from '../utilidades';
@@ -13,63 +10,66 @@ export default function HistoryScreen() {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    // Apuntar a las lecturas exactas de nuestro dispositivo
-    const lecturasRef = ref(db, 'lecturas_sensores/disp_001');
+    const obtenerHistorial = async () => {
+      try {
+        const respuesta = await fetch('http://192.168.101.22/sistema_monitoreo_yii/frontend/web/index.php?r=sensor/historial&id=1');
+        const json = await respuesta.json();
 
-    const unsubscribe = onValue(lecturasRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const datosFirebase = snapshot.val();
-        const historialArray = [];
+        if (json.ok) {
+          const datosAPI = json.data || [];
+          const historialArray = [];
 
-        Object.keys(datosFirebase).forEach((key) => {
-          const item = datosFirebase[key];
-          const date = new Date(item.fecha_hora || Date.now());
-          const hora = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          datosAPI.forEach((item, index) => {
+            // Se asume que item.fecha_hora viene formateado como "YYYY-MM-DD HH:MM:SS"
+            let hora = '--:--';
+            if (item.fecha_hora) {
+              const partes = item.fecha_hora.split(' ');
+              if (partes.length > 1) {
+                // Tomar hora:minutos
+                const partesHora = partes[1].split(':');
+                if (partesHora.length > 1) {
+                  hora = `${partesHora[0]}:${partesHora[1]}`;
+                }
+              }
+            }
 
-          const valorMQ135 = item.mq135_valor || 0;
-          const valorMQ5 = item.mq5_valor || 0;
+            const valorMQ135 = item.mq135 || 0;
+            const valorMQ5 = item.mq5 || 0;
 
-          // Se agrega la tarjeta del MQ-135 usando la utilidad dinámica
-          historialArray.push({
-            id: `${key}-mq135`,
-            firebaseKey: key,
-            sensor: "Calidad Aire (MQ-135)",
-            valor: valorMQ135,
-            estado: calcularEstadoTexto(valorMQ135, 'MQ-135'),
-            fecha: hora
+            // Se agrega la tarjeta del MQ-135 usando la utilidad dinámica
+            historialArray.push({
+              id: `${index}-mq135`,
+              sensor: "Calidad Aire (MQ-135)",
+              valor: valorMQ135,
+              estado: calcularEstadoTexto(valorMQ135, 'MQ-135'),
+              fecha: hora
+            });
+
+            // Se agrega la tarjeta del MQ-5 usando la utilidad dinámica
+            historialArray.push({
+              id: `${index}-mq5`, 
+              sensor: "Gases Contaminantes (MQ-5)",
+              valor: valorMQ5,
+              estado: calcularEstadoTexto(valorMQ5, 'MQ-5'),
+              fecha: hora
+            });
           });
 
-          // Se agrega la tarjeta del MQ-5 usando la utilidad dinámica
-          historialArray.push({
-            id: `${key}-mq5`, 
-            sensor: "Gases Contaminantes (MQ-5)",
-            valor: valorMQ5,
-            estado: calcularEstadoTexto(valorMQ5, 'MQ-5'),
-            fecha: hora
-          });
-        });
-
-        setData(historialArray.reverse());
-      } else {
-        setData([]); 
+          // La API Yii2 ya ordena y devuelve los últimos registros en reversa (DESC),
+          // así que simplemente los asignamos tal cual
+          setData(historialArray);
+        } else {
+          setData([]); 
+        }
+        setCargando(false);
+      } catch (error) {
+        console.error("Error al cargar historial desde Yii2:", error);
+        setCargando(false);
       }
-      setCargando(false);
-    }, (error) => {
-      console.error("Error de Firebase:", error);
-      setCargando(false);
-    });
+    };
 
-    return () => unsubscribe();
+    obtenerHistorial();
   }, []);
-
-  const eliminarLectura = (idFirebase) => { //INICIO ELIMINAR
-    // Apuntamos exactamente al ID de la lectura que queremos borrar
-    const lecturaRef = ref(db, `lecturas_sensores/disp_001/${idFirebase}`);
-
-    remove(lecturaRef).then(() => {
-      alert("Registro eliminado de la base de datos.");
-    }).catch((error) => console.error("Error al borrar:", error));
-  };//FIN ELIMINAR
 
   if (cargando) {
     return (
@@ -82,20 +82,17 @@ export default function HistoryScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {data.map((item) => (
           <View key={item.id} style={styles.card}>
-            <Text style={styles.sensor}>{item.sensor}</Text>
-
-            {/* BOTÓN DE ELIMINAR */}
-            <TouchableOpacity onPress={() => eliminarLectura(item.firebaseKey)}>
-              <Text style={{color: 'red', fontWeight: 'bold'}}>Borrar</Text>
-            </TouchableOpacity>
-          
-
-            <Text>Valor: {item.valor} ppm</Text>
-            <Text>Estado: {item.estado}</Text>
-            <Text style={styles.fecha}>{item.fecha}</Text>
+            <View style={styles.cardHeader}>
+              <Text style={styles.sensor}>{item.sensor}</Text>
+              <Text style={styles.fecha}>{item.fecha}</Text>
+            </View>
+            <View style={styles.cardDetails}>
+              <Text style={styles.detailText}>Valor: <Text style={styles.boldText}>{item.valor} ppm</Text></Text>
+              <Text style={styles.detailText}>Estado: <Text style={styles.boldText}>{item.estado}</Text></Text>
+            </View>
           </View>
         ))}
       </ScrollView>
@@ -104,8 +101,49 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex:1, padding:20, backgroundColor:'#ecf0f1' },
-  card: { backgroundColor:'#fff', padding:15, borderRadius:10, marginBottom:10, elevation:3 },
-  sensor: { fontWeight:'bold', fontSize:16, marginBottom:5, color: '#2c3e50' },
-  fecha: { marginTop:5, fontSize:12, color:'#7f8c8d' }
+  container: { 
+    flex: 1, 
+    padding: 20, 
+    backgroundColor: '#f5f6fa' 
+  },
+  card: { 
+    backgroundColor: '#ffffff', 
+    padding: 16, 
+    borderRadius: 14, 
+    marginBottom: 12, 
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  sensor: { 
+    fontWeight: 'bold', 
+    fontSize: 15, 
+    color: '#2c3e50' 
+  },
+  fecha: { 
+    fontSize: 12, 
+    color: '#7f8c8d',
+    fontWeight: '500'
+  },
+  cardDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 4,
+  },
+  detailText: {
+    fontSize: 14,
+    color: '#636e72',
+  },
+  boldText: {
+    fontWeight: 'bold',
+    color: '#2d3436',
+  }
 });

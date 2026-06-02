@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { db } from '../firebase'; 
-import { ref, onValue, query, limitToLast } from 'firebase/database';
 
 // Importamos la lógica centralizada
 import { calcularColor, calcularEstadoTexto } from '../utilidades';//importacion de las umbrales
@@ -13,26 +11,33 @@ export default function DetailScreen({ route }) {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    const ultimaLecturaRef = query(ref(db, 'lecturas_sensores/disp_001'), limitToLast(1));
-
-    const unsubscribe = onValue(ultimaLecturaRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const val = Object.values(data)[0];
+    const obtenerUltimaLectura = async () => {
+      try {
+        const respuesta = await fetch('http://192.168.101.22/sistema_monitoreo_yii/frontend/web/index.php?r=sensor/ultima&id=1');
+        const json = await respuesta.json();
         
-        setDatos({
-          mq135: val.mq135_valor || 0,
-          mq5: val.mq5_valor || 0,
-          fechaActualizacion: val.fecha_hora
-        });
-        
+        if (json.ok) {
+          setDatos({
+            mq135: json.mq135 || 0,
+            mq5: json.mq5 || 0,
+            fechaActualizacion: json.fecha_hora
+          });
+        }
         setCargando(false);
-      } else {
+      } catch (error) {
+        console.error("Error al obtener última lectura en detalle:", error);
         setCargando(false);
       }
-    });
+    };
 
-    return () => unsubscribe();
+    // Consulta inicial inmediata
+    obtenerUltimaLectura();
+
+    // Polling cada 10 segundos (10000 ms)
+    const intervalo = setInterval(obtenerUltimaLectura, 10000);
+
+    // Limpieza al desmontar
+    return () => clearInterval(intervalo);
   }, []);
 
   let valorActual = 0;

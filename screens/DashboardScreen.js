@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView, StatusBar } from 'react-native';
 
 import { cargarUmbralesDesdeFirebase, calcularColor, calcularEstadoTexto } from '../utilidades';
 
@@ -92,9 +92,7 @@ export default function DashboardScreen({ navigation }) {
     return () => clearInterval(intervalo);
   }, []);
 
-  const simularNuevoDispositivo = () => {
-    Alert.alert("Función deshabilitada", "La simulación de nuevos dispositivos está desactivada en el modo de API Yii2.");
-  };
+
 
   // 3. Apagar la alarma a nivel local (Yii2 simulado)
   const apagarAlarma = () => {
@@ -105,84 +103,346 @@ export default function DashboardScreen({ navigation }) {
   const estadoMQ135 = calcularEstadoTexto(valorMQ135, 'MQ-135');
   const estadoMQ5 = calcularEstadoTexto(valorMQ5, 'MQ-5');
 
+  const colorMQ135 = calcularColor(valorMQ135, 'MQ-135');
+  const colorMQ5 = calcularColor(valorMQ5, 'MQ-5');
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sistema de Monitoreo</Text>
-
-      {/* Banner de Emergencia y Botón para Apagar (Solo se muestra si alarmaSonando es true) */}
-      {alarmaSonando && (
-        <View style={styles.alertaContainer}>
-          <Text style={styles.alertaTexto}>¡ALERTA! Buzzer Sonando</Text>
-          <TouchableOpacity style={styles.botonApagar} onPress={apagarAlarma}>
-            <Text style={styles.botonApagarTexto}>DETENER ALARMA</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <View style={[styles.circle, { backgroundColor: colorFondo }]}>
-        <Text style={styles.circleText}>AIRE</Text>
-        <Text style={styles.estado}>{estadoGeneral}</Text>
+    <View style={styles.mainContainer}>
+      <StatusBar backgroundColor="#1a237e" barStyle="light-content" />
+      
+      {/* HEADER PREMIUM */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Sistema de Monitoreo</Text>
+        <Text style={styles.headerSubtitle}>Panel de Control en Tiempo Real</Text>
       </View>
 
-      <Text style={styles.subtitle}>Sensores activos</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        
+        {/* Banner de Emergencia y Botón para Apagar (Solo se muestra si alarmaSonando es true) */}
+        {alarmaSonando && (
+          <View style={styles.alertaContainer}>
+            <View style={styles.alertaHeader}>
+              <Text style={styles.alertaIcon}>🚨</Text>
+              <Text style={styles.alertaTexto}>¡ALERTA! Alarma Activada</Text>
+            </View>
+            <Text style={styles.alertaDescripcion}>Se han detectado niveles de peligro en los sensores.</Text>
+            <TouchableOpacity style={styles.botonApagar} onPress={apagarAlarma}>
+              <Text style={styles.botonApagarTexto}>SILENCIAR ALARMA</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-      <TouchableOpacity 
-        style={styles.card}
-        onPress={() => navigation.navigate('Detail', { sensor: 'MQ-135' })} 
-      >
-        <Text style={styles.sensorTitle}>Calidad del aire</Text>
-        <Text style={styles.sensorCategory}>(Sensor MQ-135)</Text>
-        <Text style={styles.sensorDetail}>Valor actual: {valorMQ135}</Text>
-        <Text style={styles.sensorDetail}>Estado: {estadoMQ135}</Text>
-        <Text style={styles.sensorDetail}>Última lectura: {ultimaLectura}</Text>
-      </TouchableOpacity>
+        {/* CÍRCULO DE ESTADO CON HALO CONCÉNTRICO */}
+        <View style={styles.statusSection}>
+          <View style={[styles.outerHalo, { backgroundColor: colorFondo + '1a' }]}>
+            <View style={[styles.innerHalo, { backgroundColor: colorFondo + '33' }]}>
+              <View style={[styles.circle, { backgroundColor: colorFondo }]}>
+                <Text style={styles.circleLabel}>ESTADO</Text>
+                <Text style={styles.estado}>{estadoGeneral}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
-      <TouchableOpacity 
-        style={styles.card}
-        onPress={() => navigation.navigate('Detail', { sensor: 'MQ-5' })}
-      >
-        <Text style={styles.sensorTitle}>Gases combustibles</Text>
-        <Text style={styles.sensorCategory}>(Sensor MQ-5)</Text>
-        <Text style={styles.sensorDetail}>Valor actual: {valorMQ5}</Text>
-        <Text style={styles.sensorDetail}>Estado: {estadoMQ5}</Text>
-        <Text style={styles.sensorDetail}>Última lectura: {ultimaLectura}</Text>
-      </TouchableOpacity>
+        <Text style={styles.sectionTitle}>Sensores Activos</Text>
 
-        {/* bloque de añadido de sensor(CREAR) */}
-      <TouchableOpacity 
-      style={[styles.historyButton, { backgroundColor: '#aea927', marginTop: 20 }]}
-      onPress={simularNuevoDispositivo}
-    >
-      <Text style={styles.historyText}>Añadir Sensor Cocina (Prueba)</Text>
-    </TouchableOpacity>
+        {/* TARJETA SENSOR MQ-135 (CALIDAD DEL AIRE) */}
+        <TouchableOpacity 
+          style={[styles.card, { borderLeftColor: colorMQ135 }]}
+          onPress={() => navigation.navigate('Detail', { sensor: 'MQ-135' })} 
+          activeOpacity={0.8}
+        >
+          <View style={styles.cardHeader}>
+            <View>
+              <Text style={styles.sensorTitle}>Calidad del Aire</Text>
+              <Text style={styles.sensorCategory}>Sensor MQ-135</Text>
+            </View>
+            <View style={[styles.badge, { backgroundColor: colorMQ135 + '1e' }]}>
+              <Text style={[styles.badgeText, { color: colorMQ135 }]}>{estadoMQ135.toUpperCase()}</Text>
+            </View>
+          </View>
+          
+          <View style={styles.cardDivider} />
+          
+          <View style={styles.cardDetailsRow}>
+            <View>
+              <Text style={styles.detailLabel}>Valor actual</Text>
+              <Text style={[styles.detailValueBold, { color: colorMQ135 }]}>{valorMQ135} <Text style={styles.unitText}>ppm</Text></Text>
+            </View>
+            <View style={styles.rightDetailAlign}>
+              <Text style={styles.detailLabel}>Última lectura</Text>
+              <Text style={styles.detailValue}>{ultimaLectura ? ultimaLectura.split(' ')[1] : '--:--:--'}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={styles.historyButton}
-        onPress={() => navigation.navigate('History')}
-      >
-        <Text style={styles.historyText}>Ver historial completo</Text>
-      </TouchableOpacity>
+        {/* TARJETA SENSOR MQ-5 (GASES COMBUSTIBLES) */}
+        <TouchableOpacity 
+          style={[styles.card, { borderLeftColor: colorMQ5 }]}
+          onPress={() => navigation.navigate('Detail', { sensor: 'MQ-5' })}
+          activeOpacity={0.8}
+        >
+          <View style={styles.cardHeader}>
+            <View>
+              <Text style={styles.sensorTitle}>Gases Combustibles</Text>
+              <Text style={styles.sensorCategory}>Sensor MQ-5</Text>
+            </View>
+            <View style={[styles.badge, { backgroundColor: colorMQ5 + '1e' }]}>
+              <Text style={[styles.badgeText, { color: colorMQ5 }]}>{estadoMQ5.toUpperCase()}</Text>
+            </View>
+          </View>
+          
+          <View style={styles.cardDivider} />
+          
+          <View style={styles.cardDetailsRow}>
+            <View>
+              <Text style={styles.detailLabel}>Valor actual</Text>
+              <Text style={[styles.detailValueBold, { color: colorMQ5 }]}>{valorMQ5} <Text style={styles.unitText}>ppm</Text></Text>
+            </View>
+            <View style={styles.rightDetailAlign}>
+              <Text style={styles.detailLabel}>Última lectura</Text>
+              <Text style={styles.detailValue}>{ultimaLectura ? ultimaLectura.split(' ')[1] : '--:--:--'}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {/* BOTONES DE ACCIÓN */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={styles.historyButton}
+            onPress={() => navigation.navigate('History')}
+            activeOpacity={0.9}
+          >
+            <Text style={styles.historyText}>📊   Ver Historial Completo</Text>
+          </TouchableOpacity>
+        </View>
+
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', padding: 20, backgroundColor: '#ecf0f1' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  circle: { width: 180, height: 180, borderRadius: 90, justifyContent: 'center', alignItems: 'center', marginBottom: 30, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25 },
-  circleText: { color: '#fff', fontSize: 22, fontWeight: 'bold' },
-  estado: { color: '#fff', marginTop: 5, fontWeight: 'bold', fontSize: 16, textTransform: 'uppercase' },
-  subtitle: { fontSize: 18, marginBottom: 10, fontWeight: '600', alignSelf: 'flex-start', width: '100%' },
-  card: { backgroundColor: '#fff', padding: 15, borderRadius: 12, width: '100%', marginBottom: 15, elevation: 3},
-  sensorTitle: { fontWeight: 'bold', fontSize: 18, color: '#2c3e50' },
-  sensorCategory: { color: '#7f8c8d', marginBottom: 8, fontSize: 14 },
-  sensorDetail: { fontSize: 14, color: '#34495e', marginTop: 2 },
-  historyButton: { marginTop: 10, backgroundColor: '#34495e', padding: 15, borderRadius: 10, width: '100%', alignItems: 'center' },
-  historyText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  
-  //ESTILOS PARA LA ALARMA
-  alertaContainer: { width: '100%', backgroundColor: '#c0392b', padding: 15, borderRadius: 10, marginBottom: 20, alignItems: 'center', elevation: 5 },
-  alertaTexto: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  botonApagar: { backgroundColor: '#f1c40f', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
-  botonApagarTexto: { color: '#2c3e50', fontWeight: 'bold', fontSize: 16 }
+  mainContainer: { 
+    flex: 1, 
+    backgroundColor: '#f5f6fa' 
+  },
+  header: { 
+    backgroundColor: '#1a237e', 
+    paddingTop: 50, 
+    paddingBottom: 25, 
+    alignItems: 'center',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  headerTitle: { 
+    color: '#ffffff', 
+    fontSize: 22, 
+    fontWeight: 'bold',
+    letterSpacing: 0.5
+  },
+  headerSubtitle: { 
+    color: '#c5cae9', 
+    fontSize: 13, 
+    marginTop: 4,
+    fontWeight: '500'
+  },
+  scrollContent: { 
+    padding: 20,
+    paddingBottom: 40
+  },
+  statusSection: {
+    alignItems: 'center',
+    marginVertical: 15,
+  },
+  outerHalo: {
+    width: 230,
+    height: 230,
+    borderRadius: 115,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  innerHalo: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  circle: { 
+    width: 170, 
+    height: 170, 
+    borderRadius: 85, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    elevation: 8, 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 4 }, 
+    shadowOpacity: 0.3, 
+    shadowRadius: 5 
+  },
+  circleLabel: { 
+    color: 'rgba(255,255,255,0.75)', 
+    fontSize: 12, 
+    fontWeight: 'bold',
+    letterSpacing: 1
+  },
+  estado: { 
+    color: '#ffffff', 
+    marginTop: 6, 
+    fontWeight: '900', 
+    fontSize: 18, 
+    textAlign: 'center',
+    paddingHorizontal: 15,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5
+  },
+  sectionTitle: { 
+    fontSize: 18, 
+    fontWeight: '700', 
+    color: '#2c3e50', 
+    marginTop: 20, 
+    marginBottom: 15,
+    letterSpacing: 0.3
+  },
+  card: { 
+    backgroundColor: '#ffffff', 
+    borderRadius: 16, 
+    padding: 18,
+    marginBottom: 16, 
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    borderLeftWidth: 5,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sensorTitle: { 
+    fontWeight: 'bold', 
+    fontSize: 17, 
+    color: '#2c3e50' 
+  },
+  sensorCategory: { 
+    color: '#7f8c8d', 
+    fontSize: 13,
+    marginTop: 2
+  },
+  badge: {
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 0.5
+  },
+  cardDivider: {
+    height: 1,
+    backgroundColor: '#f1f2f6',
+    marginVertical: 12,
+  },
+  cardDetailsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  detailLabel: {
+    fontSize: 11,
+    color: '#95a5a6',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 2
+  },
+  detailValueBold: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  unitText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#7f8c8d'
+  },
+  rightDetailAlign: {
+    alignItems: 'flex-end',
+  },
+  detailValue: {
+    fontSize: 15,
+    color: '#34495e',
+    fontWeight: '600',
+    marginTop: 5
+  },
+  buttonContainer: {
+    marginTop: 10,
+    gap: 12,
+  },
+  historyButton: { 
+    backgroundColor: '#1a237e', 
+    padding: 16, 
+    borderRadius: 12, 
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#1a237e',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  historyText: { 
+    color: '#ffffff', 
+    fontWeight: 'bold', 
+    fontSize: 16 
+  },
+  alertaContainer: { 
+    backgroundColor: '#d63031', 
+    padding: 16, 
+    borderRadius: 14, 
+    marginBottom: 20, 
+    elevation: 4,
+    shadowColor: '#d63031',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  alertaHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  alertaIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  alertaTexto: { 
+    color: '#ffffff', 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+  },
+  alertaDescripcion: {
+    color: '#ffdddd',
+    fontSize: 13,
+    marginBottom: 12,
+    lineHeight: 18,
+  },
+  botonApagar: { 
+    backgroundColor: '#ffffff', 
+    paddingVertical: 10, 
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  botonApagarTexto: { 
+    color: '#d63031', 
+    fontWeight: 'bold', 
+    fontSize: 14,
+    letterSpacing: 0.5
+  }
 });
